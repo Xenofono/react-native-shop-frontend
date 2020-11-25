@@ -6,3 +6,6 @@ Frontend react native app for my webshop backend, uses UI kitty styling library 
 
 ![store](https://user-images.githubusercontent.com/41169632/100215165-fa48f680-2f10-11eb-81d1-d140a2edddc6.png)
 
+![store](https://user-images.githubusercontent.com/41169632/100215424-45630980-2f11-11eb-94d4-955bd9ab23af.png)
+
+
