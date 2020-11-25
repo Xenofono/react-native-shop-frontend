@@ -1,38 +1,91 @@
-import { Ionicons } from '@expo/vector-icons';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
-import * as React from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createStackNavigator } from "@react-navigation/stack";
+import * as React from "react";
 
-import Colors from '../constants/Colors';
-import useColorScheme from '../hooks/useColorScheme';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
-import { BottomTabParamList, TabOneParamList, TabTwoParamList } from '../types';
+import Colors from "../constants/Colors";
+import useColorScheme from "../hooks/useColorScheme";
+import Products from "../screens/Products";
+import Cart from "../screens/Cart";
+import {
+  BottomTabParamList,
+  CartParamList,
+  OrderParamList,
+  ProductsParamList,
+} from "../types";
+import { Alert, Platform } from "react-native";
+import Orders from "../screens/Orders";
+import { Button, useTheme } from "@ui-kitten/components";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { logout } from "../store/actions/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { sendOrder } from "../store/actions/orders";
+import { RootState } from "../App";
 
+const TopTab = createMaterialTopTabNavigator();
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
 export default function BottomTabNavigator() {
   const colorScheme = useColorScheme();
 
+  const theme = useTheme();
+  const primaryColor = theme["color-primary-default"];
+  const accentColor = theme["color-basic-700"];
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
+
   return (
-    <BottomTab.Navigator
-      initialRouteName="TabOne"
-      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}>
-      <BottomTab.Screen
-        name="TabOne"
-        component={TabOneNavigator}
+    <TopTab.Navigator
+      initialRouteName="ProductsScreen"
+      tabBarOptions={{
+        activeTintColor: primaryColor,
+        style: { backgroundColor: accentColor, height: 65, },
+        showIcon: true,
+      }}
+      tabBarPosition="bottom"
+      lazy={true}>
+      <TopTab.Screen
+        name="ProductsScreen"
+        component={ProductsStackNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <Ionicons
+              name={Platform.OS === "ios" ? "ios-cart" : "md-cart"}
+              size={30}
+              color={color}
+            />
+          ),
+          title: "Produkter",
         }}
       />
-      <BottomTab.Screen
-        name="TabTwo"
-        component={TabTwoNavigator}
+      <TopTab.Screen
+        name="CartScreen"
+        component={CartStackNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <Ionicons
+              name={Platform.OS === "ios" ? "ios-basket" : "md-basket"}
+              size={30}
+              color={color}
+            />
+          ),
+          title: "Kundvagn",
         }}
       />
-    </BottomTab.Navigator>
+      <TopTab.Screen
+        name="OrdersScreen"
+        component={OrderStackNavigator}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons
+              name={Platform.OS === "ios" ? "ios-book" : "md-book"}
+              size={30}
+              color={color}
+            />
+          ),
+          title: "Beställningar",
+        }}
+      />
+    </TopTab.Navigator>
   );
 }
 
@@ -44,30 +97,76 @@ function TabBarIcon(props: { name: string; color: string }) {
 
 // Each tab has its own navigation stack, you can read more about this pattern here:
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
-const TabOneStack = createStackNavigator<TabOneParamList>();
 
-function TabOneNavigator() {
+const headerStyler = () => {
+  const theme = useTheme();
+  const primaryColor = theme["color-primary-default"];
+  const accentColor = theme["color-basic-700"];
+
+  return () => ({
+    headerStyle: { backgroundColor: accentColor },
+    headerTintColor: primaryColor,
+  });
+};
+
+const CartStack = createStackNavigator<CartParamList>();
+
+function CartStackNavigator() {
   return (
-    <TabOneStack.Navigator>
-      <TabOneStack.Screen
-        name="TabOneScreen"
-        component={TabOneScreen}
-        options={{ headerTitle: 'Tab One Title' }}
+    <CartStack.Navigator>
+      <CartStack.Screen
+        name="CartScreen"
+        component={Cart}
+
       />
-    </TabOneStack.Navigator>
+    </CartStack.Navigator>
   );
 }
 
-const TabTwoStack = createStackNavigator<TabTwoParamList>();
+const ProductsStack = createStackNavigator<ProductsParamList>();
 
-function TabTwoNavigator() {
+function ProductsStackNavigator() {
+  const style = headerStyler()();
+  const dispatch = useDispatch();
+
   return (
-    <TabTwoStack.Navigator>
-      <TabTwoStack.Screen
-        name="TabTwoScreen"
-        component={TabTwoScreen}
-        options={{ headerTitle: 'Tab Two Title' }}
+    <ProductsStack.Navigator>
+      <ProductsStack.Screen
+        name="ProductsScreen"
+        component={Products}
+        options={{
+          headerTitle: "Produkter",
+          headerRight: () => (
+            <Ionicons
+              name="md-log-out"
+              size={30}
+              color={style.headerTintColor}
+              onPress={() => dispatch(logout())}
+              style={{marginRight:20}}
+              ></Ionicons>
+          ),
+          ...style,
+        }}
       />
-    </TabTwoStack.Navigator>
+    </ProductsStack.Navigator>
+  );
+}
+
+const OrderStack = createStackNavigator<OrderParamList>();
+
+function OrderStackNavigator() {
+  const style = headerStyler()();
+
+  return (
+    <OrderStack.Navigator>
+      <OrderStack.Screen
+        name="OrdersScreen"
+        component={Orders}
+        options={{
+          headerTitle: "Beställningar",
+          ...style,
+        }}
+      />
+    </OrderStack.Navigator>
   );
 }
