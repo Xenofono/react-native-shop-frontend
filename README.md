@@ -1,6 +1,11 @@
 # react-native-shop-frontend
 
-Frontend react native app for my webshop backend, uses UI kitty styling library and its secured by JWT supplied by Spring Boot
+Frontend react native app for my webshop backend.
+
+* Secured by JWT provided by the spring boot backend.
+* Styled with UI Kitty styling library mostly.
+* Navigation with react navigation 5.
+* Everything written in Typescript.
 
 ![store](https://user-images.githubusercontent.com/41169632/100214924-ba820f00-2f10-11eb-98a6-88a2f719fb2a.png)
 
